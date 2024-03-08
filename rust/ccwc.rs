@@ -8,7 +8,16 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 || args.len() > 3 {
-        eprintln!("Usage: {} [-c|--bytes] <file_path>", args[0]);
+        eprintln!(
+            "Usage: {} [OPTION] <file_path> \n
+            OPTIONS:\n
+                -c, --bytes\n
+                    print the byte counts\n
+                -l, --lines\n
+                    print the newline counts\n
+            ",
+            args[0]
+        );
         process::exit(1);
     }
 
@@ -18,6 +27,7 @@ fn main() {
     match mode {
         Some("all") => print_all_info(file_path),
         Some("bytes") => print_bytes(file_path),
+        Some("lines") => print_lines(file_path),
         None => print_all_info(file_path),
         _ => unreachable!(),
     }
@@ -27,6 +37,7 @@ fn get_mode(args: &[String]) -> (Option<&str>, usize) {
     if args.len() == 3 {
         match args[1].as_str() {
             "-c" | "--bytes" => (Some("bytes"), 2),
+            "-l" | "--lines" => (Some("lines"), 2),
             _ => (Some("all"), 1),
         }
     } else {
@@ -66,6 +77,18 @@ fn print_bytes(file_path: &str) {
     match fs::metadata(file_path) {
         Ok(metadata) => {
             println!("{} {}", metadata.len(), file_path);
+        },
+        Err(e) => {
+            eprintln!("Error reading metadata for '{}': {}", file_path, e);
+            process::exit(1);
+        }
+    }
+}
+
+fn print_lines(file_path: &str) {
+    match read_file(file_path) {
+        Ok((_word_count, line_count)) => {
+            println!("{} {}", line_count, file_path);
         },
         Err(e) => {
             eprintln!("Error reading metadata for '{}': {}", file_path, e);

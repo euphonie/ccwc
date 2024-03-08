@@ -49,23 +49,29 @@ fn read_file<P: AsRef<Path>>(file_path: P) -> io::Result<(usize, usize)> {
     let file = fs::File::open(file_path)?;
     let reader = BufReader::new(file);
 
-    let (word_count, line_count) = reader.lines().fold(
-        (0,0), |(word_acc, line_acc), line| {
-            let line = line.unwrap();
-            let words_in_line = line.split_whitespace().count();
-            (word_acc + words_in_line, line_acc + 1)
-        }
-    );
+    let (word_count, line_count) = reader.lines().fold((0, 0), |(word_acc, line_acc), line| {
+        let line = line.unwrap();
+        let words_in_line = line.split_whitespace().count();
+        (word_acc + words_in_line, line_acc + 1)
+    });
 
     Ok((word_count, line_count))
 }
 
-fn print_all_info(file_path: &str){
-    let Ok((word_count, line_count)) = read_file(file_path) else {panic!("Error reading metadata '{}'", file_path)};
+fn print_all_info(file_path: &str) {
+    let Ok((word_count, line_count)) = read_file(file_path) else {
+        panic!("Error reading metadata '{}'", file_path)
+    };
     match fs::metadata(file_path) {
         Ok(metadata) => {
-            println!("{} {} {} {}", line_count, word_count, metadata.len(), file_path);
-        },
+            println!(
+                "{} {} {} {}",
+                line_count,
+                word_count,
+                metadata.len(),
+                file_path
+            );
+        }
         Err(e) => {
             eprintln!("Error reading metadata for '{}': {}", file_path, e);
             process::exit(1);
@@ -77,7 +83,7 @@ fn print_bytes(file_path: &str) {
     match fs::metadata(file_path) {
         Ok(metadata) => {
             println!("{} {}", metadata.len(), file_path);
-        },
+        }
         Err(e) => {
             eprintln!("Error reading metadata for '{}': {}", file_path, e);
             process::exit(1);
@@ -89,7 +95,7 @@ fn print_lines(file_path: &str) {
     match read_file(file_path) {
         Ok((_word_count, line_count)) => {
             println!("{} {}", line_count, file_path);
-        },
+        }
         Err(e) => {
             eprintln!("Error reading metadata for '{}': {}", file_path, e);
             process::exit(1);

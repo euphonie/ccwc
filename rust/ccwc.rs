@@ -1,5 +1,7 @@
 use std::env;
 use std::fs;
+use std::io::{self, BufRead, BufReader};
+use std::path::Path;
 use std::process;
 
 fn main() {
@@ -32,28 +34,29 @@ fn get_mode(args: &[String]) -> (Option<&str>, usize) {
     }
 }
 
-fn get_file_content(file_path: &str) -> (usize, usize) {
-    match fs::read_to_string(file_path) {
-        Ok(content) => {
-            let word_count = content.split_whitespace().count();
-            let line_count = content.lines().count() - 1;
-            (word_count, line_count)
-        },
-        Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_path, e);
-            process::exit(1);
+fn read_file<P: AsRef<Path>>(file_path: P) -> io::Result<(usize, usize)> {
+    let file = fs::File::open(file_path)?;
+    let reader = BufReader::new(file);
+
+    let (word_count, line_count) = reader.lines().fold(
+        (0,0), |(word_acc, line_acc), line| {
+            let line = line.unwrap();
+            let words_in_line = line.split_whitespace().count();
+            (word_acc + words_in_line, line_acc + 1)
         }
-    }
+    );
+
+    Ok((word_count, line_count))
 }
 
 fn print_all_info(file_path: &str){
-    let (word_count, line_count) = get_file_content(file_path);
+    let Ok((word_count, line_count)) = read_file(file_path) else {panic!("Error reading metadata '{}'", file_path)};
     match fs::metadata(file_path) {
         Ok(metadata) => {
             println!("{} {} {} {}", line_count, word_count, metadata.len(), file_path);
         },
         Err(e) => {
-            eprintln!("Error reading metadat for '{}': {}", file_path, e);
+            eprintln!("Error reading metadata for '{}': {}", file_path, e);
             process::exit(1);
         }
     }
@@ -65,7 +68,7 @@ fn print_bytes(file_path: &str) {
             println!("{} {}", metadata.len(), file_path);
         },
         Err(e) => {
-            eprintln!("Error reading metadat for '{}': {}", file_path, e);
+            eprintln!("Error reading metadata for '{}': {}", file_path, e);
             process::exit(1);
         }
     }

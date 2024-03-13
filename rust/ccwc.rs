@@ -10,6 +10,7 @@ fn main() {
     if args.len() < 2 || args.len() > 3 {
         eprintln!(
             "Usage: {} [OPTION] <file_path> \n
+            \n
             OPTIONS:\n
                 -c, --bytes\n
                     print the byte counts\n
@@ -24,6 +25,10 @@ fn main() {
     let (mode, file_path_index) = get_mode(&args);
     let file_path = &args[file_path_index];
 
+    process_file(mode, file_path);    
+}
+
+fn process_file(mode: Option<&str>, file_path: &str) {
     match mode {
         Some("all") => print_all_info(file_path),
         Some("bytes") => print_bytes(file_path),

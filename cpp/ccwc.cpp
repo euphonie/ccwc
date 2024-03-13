@@ -54,9 +54,9 @@ int processFile(const string& option, const string& filePath) {
     }
 
     try {
-        if (option == "-b") {
+        if (option == "-c" || option == "--bytes") {
             printBytes(inputFile, filePath);
-        } else if (option == "-l") {
+        } else if (option == "-l" || option == "--lines") {
             printLines(inputFile, filePath);
         } else if (option == "-a") {
             printAll(inputFile, filePath);

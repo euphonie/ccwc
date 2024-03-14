@@ -30,6 +30,17 @@ impl FileReader {
         Ok(lines)
     }
 
+    pub fn count_words(&self) -> Result<usize, io::Error> {
+        let file = File::open(&self.file_path)?;
+        let reader = io::BufReader::new(file);
+        let words = reader.lines().fold(0, |word_acc, line| {
+            let line = line.unwrap();
+            let words_in_line = line.split_whitespace().count();
+            word_acc + words_in_line
+        });
+        Ok(words)
+    }
+
     pub fn count_lines_and_words(&self) -> Result<(usize, usize), io::Error> {
         let file = File::open(&self.file_path)?;
         let reader = io::BufReader::new(file);

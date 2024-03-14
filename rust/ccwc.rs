@@ -16,6 +16,8 @@ fn main() {
                     print the byte counts\n
                 -l, --lines\n
                     print the newline counts\n
+                -w, --words\n
+                    print the word counts\n
             ",
             args[0]
         );
@@ -34,6 +36,7 @@ fn process_file(mode: &str, file_reader: &FileReader) {
         "all" => print_all_info(file_reader),
         "bytes" => print_bytes(file_reader),
         "lines" => print_lines(file_reader),
+        "words" => print_words(file_reader),
         "" => print_all_info(file_reader),
         _ => unreachable!(),
     }
@@ -44,6 +47,7 @@ fn get_mode(args: &[String]) -> &str {
         match args[1].as_str() {
             "-c" | "--bytes" => "bytes",
             "-l" | "--lines" => "lines",
+            "-w" | "--words" => "words",
             _ => "unknown",
         }
     } else {
@@ -91,6 +95,21 @@ fn print_lines(file_reader: &FileReader) {
     match file_reader.count_lines() {
         Ok(line_count) => {
             println!("{} {}", line_count, file_reader.file_path);
+        }
+        Err(e) => {
+            eprintln!(
+                "Error reading metadata for '{}': {}",
+                file_reader.file_path, e
+            );
+            process::exit(1);
+        }
+    }
+}
+
+fn print_words(file_reader: &FileReader) {
+    match file_reader.count_words() {
+        Ok(word_count) => {
+            println!("{} {}", word_count, file_reader.file_path);
         }
         Err(e) => {
             eprintln!(

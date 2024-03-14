@@ -90,6 +90,31 @@ int processFile(const string& option, const string& filePath) {
 }
 ```
 
+#### Structured binding declarations 
+
+Refs: [
+    https://en.cppreference.com/w/cpp/language/structured_binding,
+    https://en.cppreference.com/w/cpp/language/storage_duration
+]
+
+Values from an array/pair are assigned to each identifier from an `identifier-list`. Element type is infered from array/pair's type.
+The `auto` specifier indicates automatic storage duration at block scope for declarations. 
+
+- Snippet: 
+
+```cpp
+pair<int, int> getWordAndLineCount(std::ifstream& inputFile) {
+    ...
+    return {wordCount, lineCount};
+}
+
+void printAll(std::ifstream& inputFile, const string& filePath) {
+    ...
+    auto [wordCount, lineCount] = getWordAndLineCount(inputFile);
+    cout << lineCount << " " << wordCount << " " << fileSize << " " << filePath << endl;
+}
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

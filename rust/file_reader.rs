@@ -15,8 +15,7 @@ impl FileReader {
     fn read_file(&self) -> Result<Vec<String>, io::Error> {
         let file = File::open(&self.file_path)?;
         let reader = io::BufReader::new(file);
-        let lines = reader.lines()
-            .collect::<Result<Vec<_>, io::Error>>()?;
+        let lines = reader.lines().collect::<Result<Vec<_>, io::Error>>()?;
         Ok(lines)
     }
 
@@ -38,7 +37,7 @@ impl FileReader {
             let line = line.unwrap();
             let words_in_line = line.split_whitespace().count();
             (line_acc + 1, word_acc + words_in_line)
-        });    
+        });
         Ok((lines, words))
     }
 
@@ -46,5 +45,4 @@ impl FileReader {
         let metadata = fs::metadata(&self.file_path).unwrap();
         Ok(metadata.len())
     }
-
 }

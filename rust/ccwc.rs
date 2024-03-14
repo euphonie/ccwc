@@ -23,10 +23,10 @@ fn main() {
     }
 
     let mode = get_mode(&args);
-    let file_path = &args[args.len() -1];
+    let file_path = &args[args.len() - 1];
 
     let file_reader = FileReader::new(String::from(file_path));
-    process_file(mode, &file_reader);    
+    process_file(mode, &file_reader);
 }
 
 fn process_file(mode: &str, file_reader: &FileReader) {
@@ -52,21 +52,21 @@ fn get_mode(args: &[String]) -> &str {
 }
 
 fn print_all_info(file_reader: &FileReader) {
-    let Ok(byte_count) = file_reader.count_bytes() else { 
+    let Ok(byte_count) = file_reader.count_bytes() else {
         panic!("Error reading size of file for '{}'", file_reader.file_path)
     };
     match file_reader.count_lines_and_words() {
         Ok((line_count, word_count)) => {
-              println!(
+            println!(
                 "{} {} {} {}",
-                line_count,
-                word_count,
-                byte_count,
-                file_reader.file_path
+                line_count, word_count, byte_count, file_reader.file_path
             );
         }
         Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_reader.file_path, e);
+            eprintln!(
+                "Error reading metadata for '{}': {}",
+                file_reader.file_path, e
+            );
             process::exit(1);
         }
     }
@@ -78,7 +78,10 @@ fn print_bytes(file_reader: &FileReader) {
             println!("{} {}", byte_count, file_reader.file_path);
         }
         Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_reader.file_path, e);
+            eprintln!(
+                "Error reading metadata for '{}': {}",
+                file_reader.file_path, e
+            );
             process::exit(1);
         }
     }
@@ -90,7 +93,10 @@ fn print_lines(file_reader: &FileReader) {
             println!("{} {}", line_count, file_reader.file_path);
         }
         Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_reader.file_path, e);
+            eprintln!(
+                "Error reading metadata for '{}': {}",
+                file_reader.file_path, e
+            );
             process::exit(1);
         }
     }

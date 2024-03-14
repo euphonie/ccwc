@@ -1,6 +1,6 @@
 # Yet Another Word Counter
 
-Word counter built in multiple languages following the directives at: https://codingchallenges.fyi/challenges/challenge-git/
+Word counter built in multiple languages following the directives at: https://codingchallenges.fyi/challenges/challenge-wc
 
 ## Usage
 

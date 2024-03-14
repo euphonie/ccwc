@@ -5,10 +5,13 @@ Word counter built in multiple languages following the directives at: https://co
 ## Usage
 
 ```sh
-./ccwc [-c|--bytes] <file_path>
+./ccwc [OPTION] <file_path>
 ```
 
-- `-c` or `--bytes`: Optional flag to display only the number of bytes in the file. If not provided, the program displays all available information.
+- `-c` or `--bytes`: Optional flag to display only the number of bytes in the file. 
+- `-w` or `--words`: Optional flag to display only the word counts. 
+- `-l` or `--lines`: Optional flag to display only the number of lines in the file. 
+- Default: If not provided, the program displays all available information.
 - `<file_path>`: Path to the file for which you want to get information.
 
 ## Example

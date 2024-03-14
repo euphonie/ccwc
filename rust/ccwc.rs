@@ -1,8 +1,8 @@
 use std::env;
-use std::fs;
-use std::io::{self, BufRead, BufReader};
-use std::path::Path;
 use std::process;
+
+mod file_reader;
+use file_reader::FileReader;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -22,87 +22,75 @@ fn main() {
         process::exit(1);
     }
 
-    let (mode, file_path_index) = get_mode(&args);
-    let file_path = &args[file_path_index];
+    let mode = get_mode(&args);
+    let file_path = &args[args.len() -1];
 
-    process_file(mode, file_path);    
+    let file_reader = FileReader::new(String::from(file_path));
+    process_file(mode, &file_reader);    
 }
 
-fn process_file(mode: Option<&str>, file_path: &str) {
+fn process_file(mode: &str, file_reader: &FileReader) {
     match mode {
-        Some("all") => print_all_info(file_path),
-        Some("bytes") => print_bytes(file_path),
-        Some("lines") => print_lines(file_path),
-        None => print_all_info(file_path),
+        "all" => print_all_info(file_reader),
+        "bytes" => print_bytes(file_reader),
+        "lines" => print_lines(file_reader),
+        "" => print_all_info(file_reader),
         _ => unreachable!(),
     }
 }
 
-fn get_mode(args: &[String]) -> (Option<&str>, usize) {
+fn get_mode(args: &[String]) -> &str {
     if args.len() == 3 {
         match args[1].as_str() {
-            "-c" | "--bytes" => (Some("bytes"), 2),
-            "-l" | "--lines" => (Some("lines"), 2),
-            _ => (Some("all"), 1),
+            "-c" | "--bytes" => "bytes",
+            "-l" | "--lines" => "lines",
+            _ => "unknown",
         }
     } else {
-        (None, 1)
+        "all"
     }
 }
 
-fn read_file<P: AsRef<Path>>(file_path: P) -> io::Result<(usize, usize)> {
-    let file = fs::File::open(file_path)?;
-    let reader = BufReader::new(file);
-
-    let (word_count, line_count) = reader.lines().fold((0, 0), |(word_acc, line_acc), line| {
-        let line = line.unwrap();
-        let words_in_line = line.split_whitespace().count();
-        (word_acc + words_in_line, line_acc + 1)
-    });
-
-    Ok((word_count, line_count))
-}
-
-fn print_all_info(file_path: &str) {
-    let Ok((word_count, line_count)) = read_file(file_path) else {
-        panic!("Error reading metadata '{}'", file_path)
+fn print_all_info(file_reader: &FileReader) {
+    let Ok(byte_count) = file_reader.count_bytes() else { 
+        panic!("Error reading size of file for '{}'", file_reader.file_path)
     };
-    match fs::metadata(file_path) {
-        Ok(metadata) => {
-            println!(
+    match file_reader.count_lines_and_words() {
+        Ok((line_count, word_count)) => {
+              println!(
                 "{} {} {} {}",
                 line_count,
                 word_count,
-                metadata.len(),
-                file_path
+                byte_count,
+                file_reader.file_path
             );
         }
         Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_path, e);
+            eprintln!("Error reading metadata for '{}': {}", file_reader.file_path, e);
             process::exit(1);
         }
     }
 }
 
-fn print_bytes(file_path: &str) {
-    match fs::metadata(file_path) {
-        Ok(metadata) => {
-            println!("{} {}", metadata.len(), file_path);
+fn print_bytes(file_reader: &FileReader) {
+    match file_reader.count_bytes() {
+        Ok(byte_count) => {
+            println!("{} {}", byte_count, file_reader.file_path);
         }
         Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_path, e);
+            eprintln!("Error reading metadata for '{}': {}", file_reader.file_path, e);
             process::exit(1);
         }
     }
 }
 
-fn print_lines(file_path: &str) {
-    match read_file(file_path) {
-        Ok((_word_count, line_count)) => {
-            println!("{} {}", line_count, file_path);
+fn print_lines(file_reader: &FileReader) {
+    match file_reader.count_lines() {
+        Ok(line_count) => {
+            println!("{} {}", line_count, file_reader.file_path);
         }
         Err(e) => {
-            eprintln!("Error reading metadata for '{}': {}", file_path, e);
+            eprintln!("Error reading metadata for '{}': {}", file_reader.file_path, e);
             process::exit(1);
         }
     }
